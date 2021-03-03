@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+      integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Cakap Room | JavaScript</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="side">
+        <div class="content">
+          <div class="title">
+            <i class="fa fa-circle"></i>
+            Online
+          </div>
+          <div class="divider"></div>
+          <div class="list" id="users"></div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="header">
+          <div class="info">
+            <img class="avatar" src="images/default-room.jpg" />
+            <span class="title" id="room-name"></span>
+          </div>
+          <div class="options">
+            <span class="my-menu-link">
+              <i class="fa fa-ellipsis-v"></i>
+            </span>
+            <div class="dropdown-menu">
+              <ul>
+                <li go="index.html">Leave Room</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="my-chat"></div>
+          <div class="my-input">
+            <form id="chat-form">
+              <span
+                id="msg"
+                autocomplete="off"
+                name="message"
+                placeholder="Type a message"
+                class="textarea"
+                role="textbox"
+                contenteditable
+              ></span>
+              <button type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/component.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"
+      integrity="sha256-TDxXjkAUay70ae/QJBEpGKkpVslXaHHayklIVglFRT4="
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+  </body>
+</html>
