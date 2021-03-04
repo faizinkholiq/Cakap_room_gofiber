@@ -6,9 +6,15 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
+	"encoding/json"
 )
 
-type client struct{} // Add more data to this type if needed
+type client struct{
+	Username string
+	Room string
+} // Add more data to this type if needed
+
+type Message map[string]interface{}
 
 var clients = make(map[*websocket.Conn]client) // Note: although large maps with pointer-like types (e.g. strings) as keys are slow, using pointers themselves as keys is acceptable and fast
 var register = make(chan *websocket.Conn)
@@ -19,7 +25,32 @@ func runHub() {
 	for {
 		select {
 		case connection := <-register:
-			clients[connection] = client{}
+			username := connection.Query("username")
+			room := connection.Query("room")
+			clients[connection] = client{
+				Username: username,
+				Room: room,
+			}
+
+			message := Message{
+				"username": "Bot",
+				"text": "Hello " + username + ", Welcome to chat",
+				"bot": true,
+			}
+
+			jsonMessage, err := json.Marshal(message)
+			if err != nil {
+				log.Println(err)
+			}
+			
+			if err := connection.WriteMessage(websocket.TextMessage, []byte(jsonMessage)); err != nil {
+				log.Println("write error:", err)
+
+				unregister <- connection
+				connection.WriteMessage(websocket.CloseMessage, []byte{})
+				connection.Close()
+			}
+
 			log.Println("connection registered")
 
 		case message := <-broadcast:
@@ -38,6 +69,29 @@ func runHub() {
 
 		case connection := <-unregister:
 			// Remove the client from the hub
+			username := clients[connection].Username
+
+			message := Message{
+				"username": "Bot",
+				"text": "Ahh, " + username + " left :(",
+				"bot": true,
+			}
+
+			jsonMessage, err := json.Marshal(message)
+			if err != nil {
+				log.Println(err)
+			}
+
+			log.Println(jsonMessage)
+			
+			if err := connection.WriteMessage(websocket.TextMessage, []byte(jsonMessage)); err != nil {
+				log.Println("write error:", err)
+
+				unregister <- connection
+				connection.WriteMessage(websocket.CloseMessage, []byte{})
+				connection.Close()
+			}
+
 			delete(clients, connection)
 
 			log.Println("connection unregistered")
@@ -48,7 +102,7 @@ func runHub() {
 func main() {
 	app := fiber.New()
 
-	app.Static("/", "./home.html")
+	app.Static("/", "./public")
 
 	app.Use(func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) { // Returns true if the client requested upgrade to the WebSocket protocol

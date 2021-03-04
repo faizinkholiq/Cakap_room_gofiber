@@ -4,49 +4,99 @@ const roomName = document.getElementById("room-name");
 const userList = document.getElementById("users");
 const messageTxt = document.getElementById("msg");
 
-// Get username & room from URL
-const { username, room } = Qs.parse(location.search, {
-  ignoreQueryPrefix: true
-});
+let username;
+let conn;
 
-const socket = io();
+window.onload = function() {
+  function appendLog(item) {
+    var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+    log.appendChild(item);
+    if (doScroll) {
+      log.scrollTop = log.scrollHeight - log.clientHeight;
+    }
+  }
 
-// Join chatroom
-socket.emit("joinRoom", { username, room });
+  // document.getElementById("form").onsubmit = function() {
+  //   if (!conn) {
+  //     return false;
+  //   }
+  //   if (!msg.value) {
+  //     return false;
+  //   }
+  //   conn.send(msg.value);
+  //   msg.value = "";
+  //   return false;
+  // };
 
-// Get room & users
-socket.on("roomUsers", ({ room, users }) => {
-  outputRoomName(room);
-  outputUsers(users);
-});
+  if (window["WebSocket"]) {
+    conn = new WebSocket(
+      "ws://" + document.location.host + "/ws" + document.location.search
+    );
+    conn.onopen = function(evt) {
+      console.log(evt);
+    };
+    conn.onclose = function(evt) {
+      console.log(evt);
+    };
+    conn.onmessage = function(evt) {
+      const message = JSON.parse(evt.data);
+      username = message.username;
+      outputMessage(message);
+    };
+  } else {
+    const message = {
+      username: "Bot",
+      text: "Sorry, Your browser does not support WebSockets.",
+      bot: true
+    };
 
-// Message from server
-socket.on("message", message => {
-  outputMessage(message);
+    outputMessage(message);
+  }
+};
 
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
+// // Get username & room from URL
+// const { username, room } = Qs.parse(location.search, {
+//   ignoreQueryPrefix: true
+// });
 
-// Message submit
-chatForm.addEventListener("submit", e => {
-  e.preventDefault();
+// const socket = io();
 
-  // Get message text
-  let msg = messageTxt.innerText.trim();
+// // Join chatroom
+// socket.emit("joinRoom", { username, room });
 
-  if (!msg) return false;
+// // Get room & users
+// socket.on("roomUsers", ({ room, users }) => {
+//   outputRoomName(room);
+//   outputUsers(users);
+// });
 
-  // Emit message to server
-  socket.emit("chatMessage", {
-    text: msg,
-    bot: false
-  });
+// // Message from server
+// socket.on("message", message => {
+//   outputMessage(message);
 
-  // Clear Input
-  messageTxt.innerText = "";
-  messageTxt.focus();
-});
+//   // Scroll down
+//   chatMessages.scrollTop = chatMessages.scrollHeight;
+// });
+
+// // Message submit
+// chatForm.addEventListener("submit", e => {
+//   e.preventDefault();
+
+//   // Get message text
+//   let msg = messageTxt.innerText.trim();
+
+//   if (!msg) return false;
+
+//   // Emit message to server
+//   socket.emit("chatMessage", {
+//     text: msg,
+//     bot: false
+//   });
+
+//   // Clear Input
+//   messageTxt.innerText = "";
+//   messageTxt.focus();
+// });
 
 // Output message
 function outputMessage(message) {
