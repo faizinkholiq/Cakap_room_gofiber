@@ -54,11 +54,20 @@ func runHub() {
 			log.Println("connection registered")
 
 		case message := <-broadcast:
-			log.Println("message received:", message)
+			mapMessage := Message{
+				"username": "Bot",
+				"text": message,
+				"bot": false,
+			}
+
+			jsonMessage, err := json.Marshal(mapMessage)
+			if err != nil {
+				log.Println(err)
+			}
 
 			// Send the message to all clients
 			for connection := range clients {
-				if err := connection.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
+				if err := connection.WriteMessage(websocket.TextMessage, []byte(jsonMessage)); err != nil {
 					log.Println("write error:", err)
 
 					unregister <- connection
@@ -68,30 +77,6 @@ func runHub() {
 			}
 
 		case connection := <-unregister:
-			// Remove the client from the hub
-			username := clients[connection].Username
-
-			message := Message{
-				"username": "Bot",
-				"text": "Ahh, " + username + " left :(",
-				"bot": true,
-			}
-
-			jsonMessage, err := json.Marshal(message)
-			if err != nil {
-				log.Println(err)
-			}
-
-			log.Println(jsonMessage)
-			
-			if err := connection.WriteMessage(websocket.TextMessage, []byte(jsonMessage)); err != nil {
-				log.Println("write error:", err)
-
-				unregister <- connection
-				connection.WriteMessage(websocket.CloseMessage, []byte{})
-				connection.Close()
-			}
-
 			delete(clients, connection)
 
 			log.Println("connection unregistered")

@@ -39,6 +39,7 @@ window.onload = function() {
       console.log(evt);
     };
     conn.onmessage = function(evt) {
+      console.log("sini");
       const message = JSON.parse(evt.data);
       username = message.username;
       outputMessage(message);
@@ -78,25 +79,22 @@ window.onload = function() {
 //   chatMessages.scrollTop = chatMessages.scrollHeight;
 // });
 
-// // Message submit
-// chatForm.addEventListener("submit", e => {
-//   e.preventDefault();
+// Message submit
+chatForm.addEventListener("submit", e => {
+  e.preventDefault();
 
-//   // Get message text
-//   let msg = messageTxt.innerText.trim();
+  // Get message text
+  let msg = messageTxt.innerText.trim();
 
-//   if (!msg) return false;
+  if (!msg) return false;
 
-//   // Emit message to server
-//   socket.emit("chatMessage", {
-//     text: msg,
-//     bot: false
-//   });
+  // Emit message to server
+  conn.send(msg);
 
-//   // Clear Input
-//   messageTxt.innerText = "";
-//   messageTxt.focus();
-// });
+  // Clear Input
+  messageTxt.innerText = "";
+  messageTxt.focus();
+});
 
 // Output message
 function outputMessage(message) {
