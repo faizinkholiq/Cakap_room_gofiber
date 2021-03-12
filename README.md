@@ -6,8 +6,8 @@ a simple static realtime chat.
 
 ### 🛠️ Built with :
 
-- [ExpressJs](https://expressjs.com/)
-- [Socket.io](https://socket.io)
+- [Fiber](https://github.com/gofiber)
+- [Fiber WebSocket](https://github.com/gofiber/websocket)
 
 ### ️🌃 Screenshots:
 
@@ -29,13 +29,7 @@ a simple static realtime chat.
 cd Cakap_room/
 ```
 
-3. Install the dependencies
-
-```bash
-npm install
-```
-
-4. Then start on development mode with the command bellow :
+3. Then start on development mode with the command bellow :
 
 ```bash
 go run main.go
